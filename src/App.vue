@@ -6,12 +6,12 @@
     <div class="bg-dark"></div>
 
     <div class="indecision-container">
-      <input type="text" placeholder="hazme una pregunta" v-model="question" @keyup.enter="getYesOrNot"/>
+      <input type="text" placeholder="hazme una pregunta" v-model="question"/>
       <p>recuerda terminar con un signo de interrogacion (?)</p>
-      <div class="answer">
-        <h2>{{question}}</h2>
-        <h1>{{answer}}</h1>
-      </div>
+    </div>
+    <div class="answer" v-if="isValid">
+      <h2>{{question}}</h2>
+      <h1>{{answer }}</h1>
     </div>
   </div>
 </template>
@@ -21,22 +21,31 @@ export default {
   data() {
     return {
       question: null,
-      answer: "pensando....",
-      img:null
+      answer: null,
+      img:null,
+      isValid: null
     }
   },
   methods: {
     getYesOrNot(){
-      if(!this.question.includes("?")) return
-
       fetch("https://yesno.wtf/api")
         .then(response => response.json())
         .then((data) => {
-          this.answer = data.answer
+          this.answer = data.answer === 'yes'? 'Si!' : 'No!'
           this.img = data.image
+          console.log(data)
         } )
     }
   },
+  watch:{
+    question(value, oldValue){
+      this.answer = "...pensando"
+      this.isValid = false
+      if(!value.includes("?")) return
+      this.isValid = true
+      this.getYesOrNot()
+    }
+  }
 }
 </script>
 
@@ -69,6 +78,20 @@ img,
   align-items: center;
   flex-direction: column;
   width: 450px;
+}
+
+.answer{
+  position: absolute;
+  z-index: 98;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 50px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
 .indecision-container .answer{
